@@ -1,4 +1,7 @@
 import { useState } from "react";
+import {AppDispatch} from "../redux/store.ts";
+import {useDispatch, useSelector} from "react-redux";
+import {savePatient} from "../slice/PatientSlice.ts";
 
 // Sample Patient Data for initial load
 const initialPatients = [
@@ -11,18 +14,23 @@ function Patient() {
     const [patients, setPatients] = useState(initialPatients);
     const [newPatient, setNewPatient] = useState({ name: "", age: "", condition: "" });
     const [editingPatient, setEditingPatient] = useState(null);
+    const patient= useSelector((state: any) => state.patient);
+    const dispatch = useDispatch<AppDispatch>();
 
     // Function to add a new patient
-    const addPatient = () => {
-        if (newPatient.name && newPatient.age && newPatient.condition) {
-            const patient = { ...newPatient, id: patients.length + 1 };
-            setPatients([...patients, patient]);
-            setNewPatient({ name: "", age: "", condition: "" });
-        } else {
-            alert("Please fill all fields.");
-        }
-    };
+    const addPatient = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log("Submitted Data:", { name: newPatient.name, age: newPatient.age, condition: newPatient.condition });
+        alert("Patient added successfully!");
 
+        const newPatientData = { ...newPatient, id: patients.length + 1 };
+
+        // Dispatch the action to Redux store
+        dispatch(savePatient(newPatientData));
+
+        // Reset form fields after submission
+        setNewPatient({ id: 0, name: "", age: "", condition: "" });
+    };
     // Function to delete a patient
     const deletePatient = (id) => {
         const filteredPatients = patients.filter((patient) => patient.id !== id);
