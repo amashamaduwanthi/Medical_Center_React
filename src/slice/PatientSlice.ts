@@ -28,7 +28,18 @@ export const savePatient = createAsyncThunk(
         }
     }
 );
+export const getAllPatients=createAsyncThunk(
+    "patient/view",
+    async ()=>{
+        try {
+            const response = await api.get("/view");
+            return response.data;
+        }catch (error:any){
+            return error.response?.data || error.message;
+        }
 
+    }
+)
 
 const PatientSlice = createSlice({
     name: 'patient',
@@ -41,6 +52,10 @@ const PatientSlice = createSlice({
         builder
             .addCase(savePatient.fulfilled, (state, action) => {
                 state.push(action.payload);
+            })
+            .addCase(getAllPatients.fulfilled, (state, action)=>{
+                console.log("Fetched Patients:", action.payload);
+                return action.payload;
             })
 
     }

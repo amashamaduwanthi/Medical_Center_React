@@ -1,7 +1,7 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import {AppDispatch} from "../redux/store.ts";
 import {useDispatch, useSelector} from "react-redux";
-import {savePatient} from "../slice/PatientSlice.ts";
+import {getAllPatients, savePatient} from "../slice/PatientSlice.ts";
 
 // Sample Patient Data for initial load
 const initialPatients = [
@@ -11,10 +11,10 @@ const initialPatients = [
 ];
 
 function Patient() {
-    const [patients, setPatients] = useState(initialPatients);
+    const [patient, setPatient] = useState(initialPatients);
     const [newPatient, setNewPatient] = useState({ name: "", age: "", condition: "" });
     const [editingPatient, setEditingPatient] = useState(null);
-    const patient= useSelector((state: any) => state.patient);
+    const patients= useSelector((state: any) => state.patient);
     const dispatch = useDispatch<AppDispatch>();
 
     // Function to add a new patient
@@ -23,7 +23,7 @@ function Patient() {
         console.log("Submitted Data:", { name: newPatient.name, age: newPatient.age, condition: newPatient.condition });
         alert("Patient added successfully!");
 
-        const newPatientData = { ...newPatient, id: patients.length + 1 };
+        const newPatientData = { ...newPatient, id: patient.length + 1 };
 
         // Dispatch the action to Redux store
         dispatch(savePatient(newPatientData));
@@ -31,19 +31,22 @@ function Patient() {
         // Reset form fields after submission
         setNewPatient({ id: 0, name: "", age: "", condition: "" });
     };
+    useEffect(() => {
+        dispatch(getAllPatients());
+    }, [dispatch]);
     // Function to delete a patient
     const deletePatient = (id) => {
-        const filteredPatients = patients.filter((patient) => patient.id !== id);
-        setPatients(filteredPatients);
+        const filteredPatients = patient.filter((patient) => patient.id !== id);
+        setPatient(filteredPatients);
     };
 
     // Function to update a patient's information
     const updatePatient = () => {
         if (editingPatient) {
-            const updatedPatients = patients.map((patient) =>
+            const updatedPatients = patient.map((patient) =>
                 patient.id === editingPatient.id ? editingPatient : patient
             );
-            setPatients(updatedPatients);
+            setPatient(updatedPatients);
             setEditingPatient(null);
         }
     };
@@ -68,7 +71,7 @@ function Patient() {
             <h1 className="text-4xl font-extrabold mb-8 text-center text-gray-800">Patient Management</h1>
 
             {/* Form to add or update a patient */}
-            <div className="max-w-xl mx-auto bg-white p-8 shadow-lg rounded-lg mb-8">
+            <div className="max-w-xl mx-auto bg-blue-100 p-8 shadow-lg rounded-lg mb-8">
                 <h2 className="text-2xl font-semibold mb-4">{editingPatient ? "Edit Patient" : "Add New Patient"}</h2>
 
                 <input
@@ -116,7 +119,7 @@ function Patient() {
             {/* Patient Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {patients.map((patient) => (
-                    <div key={patient.id} className="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition duration-300">
+                    <div key={patient.id} className="bg-blue-100 p-6 shadow-lg rounded-lg hover:shadow-xl transition duration-300">
                         <h3 className="text-xl font-semibold mb-2">{patient.name}</h3>
                         <p className="text-gray-700 mb-2">Age: {patient.age}</p>
                         <p className="text-gray-700 mb-2">Condition: {patient.condition}</p>

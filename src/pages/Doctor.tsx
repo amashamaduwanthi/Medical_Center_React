@@ -1,10 +1,14 @@
 import React, { useState } from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch} from "../redux/store.ts";
+
+import {saveDoctor} from "../slice/DoctorSlice.ts";
 
 // Sample Doctor Data for initial load
 const initialDoctors = [
-    { id: 1, name: "Dr. John Doe", specialty: "Cardiology", yearsOfExperience: 15, bio: "Experienced cardiologist." },
-    { id: 2, name: "Dr. Jane Smith", specialty: "Neurology", yearsOfExperience: 10, bio: "Specialized in brain and spine disorders." },
-    { id: 3, name: "Dr. Samuel Green", specialty: "Dermatology", yearsOfExperience: 8, bio: "Skin care expert." }
+    { id: 1, name: "Dr. John Doe", specialty: "Cardiology",  yearOfExperience: 15, bio: "Experienced cardiologist." },
+    { id: 2, name: "Dr. Jane Smith", specialty: "Neurology",  yearOfExperience: 10, bio: "Specialized in brain and spine disorders." },
+    { id: 3, name: "Dr. Samuel Green", specialty: "Dermatology",  yearOfExperience: 8, bio: "Skin care expert." }
 ];
 
 function Doctor() {
@@ -12,17 +16,24 @@ function Doctor() {
     const [newDoctor, setNewDoctor] = useState({ name: "", specialty: "", yearsOfExperience: "", bio: "" });
     const [editingDoctor, setEditingDoctor] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const doctor= useSelector((state: any) => state.doctor);
+    const dispatch = useDispatch<AppDispatch>();
 
     // Function to add a new doctor
-    const addDoctor = () => {
-        if (newDoctor.name && newDoctor.specialty && newDoctor.yearsOfExperience && newDoctor.bio) {
-            const doctor = { ...newDoctor, id: doctors.length + 1 };
-            setDoctors([...doctors, doctor]);
-            setNewDoctor({ name: "", specialty: "", yearsOfExperience: "", bio: "" });
-        } else {
-            alert("Please fill all fields.");
-        }
+    const addDoctor = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log("Submitted Data:", { name: newDoctor.name, specialty: newDoctor.specialty,  yearOfExperience: newDoctor.yearsOfExperience, bio: newDoctor.bio });
+        alert("Doctor added successfully!");
+
+        const newDoctorData = { ...newDoctor, id: doctors.length + 1 };
+
+        // Dispatch the action to Redux store
+        dispatch(saveDoctor(newDoctorData));
+
+        // Reset form fields after submission
+        setNewDoctor({ id: 0, name: "", specialty: "",  yearOfExperience: "", bio: "" });
     };
+
 
     // Function to delete a doctor
     const deleteDoctor = (id) => {
@@ -103,9 +114,9 @@ function Doctor() {
                 />
                 <input
                     type="number"
-                    name="yearsOfExperience"
-                    placeholder="Years of Experience"
-                    value={editingDoctor ? editingDoctor.yearsOfExperience : newDoctor.yearsOfExperience}
+                    name=" yearOfExperience"
+                    placeholder="Age"
+                    value={editingDoctor ? editingDoctor. yearOfExperience : newDoctor. yearsOfExperience}
                     onChange={handleInputChange}
                     className="w-full p-4 mb-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
                 />
