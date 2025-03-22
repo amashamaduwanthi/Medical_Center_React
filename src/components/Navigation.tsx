@@ -4,7 +4,7 @@ import './Navigation.css'
 export function Navigation() {
     return (
         <>
-            <header className="bg-teal-900 text-white shadow=lg " >
+            <header className="bg-blue-600 text-white shadow=lg " >
                 <nav className="px-4 py-3">
                     <ul className="flex space-x-4">
                         <Link to="" className='custom-link'>Home</Link>
