@@ -31,6 +31,23 @@ export const saveAppointment = createAsyncThunk(
     }
 );
 
+export const getAllAppointments=createAsyncThunk(
+    "appointment/view",
+    async ()=>{
+        try{
+            const response= await api.get("/view");
+            return response.data;
+        }catch(error:any){
+            return error.response?.data || error.message;
+        }
+    }
+)
+
+
+
+
+
+
 const AppointmentSlice = createSlice({
     name: 'appointment',
     initialState: initialState,
