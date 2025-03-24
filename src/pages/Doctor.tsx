@@ -45,6 +45,8 @@ function Doctor() {
     // Function to delete a doctor
     const deleteDoctor = (name:string) => {
         dispatch(deleteDoctors(name));
+        alert("Doctor deleted successfully!");
+        dispatch(getAllDoctors())
     };
 
     // Function to update a doctor's information

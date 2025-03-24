@@ -1,60 +1,88 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {useDispatch} from "react-redux";
+import {AppDispatch} from "../redux/store.ts";
+import Appointments from "../model/Appointments.ts";
+import {saveAppointment} from "../slice/AppiontmentSlice.ts";
 
 function Appointment() {
-    // Sample data for doctors
-    const doctors = ["Dr. John Doe", "Dr. Jane Smith", "Dr. Samuel Green"];
-
-    // Generate a random patient ID (This could be fetched from a backend in a real-world application)
-    const generatePatientId = () => `P-${Math.floor(Math.random() * 10000)}`;
-
+    // State for doctor list
+    const [doctors, setDoctors] = useState([]);
+    const [patients, setPatients] = useState([]);
+    //const generatePatientId = () => `P-${Math.floor(Math.random() * 10000)}`;
+    const dispatch = useDispatch<AppDispatch>();
+    // State for appointment details
     const [appointmentDetails, setAppointmentDetails] = useState({
         name: "",
-        email: "",
-        phone: "",
         appointmentDate: "",
         appointmentTime: "",
-        doctorName: doctors[0], // Default to the first doctor in the list
-        patientId: generatePatientId(), // Auto-generating patient ID
+        doctorName: "",
+        email:"",
     });
 
-    const [appointments, setAppointments] = useState([]);
+    // Generate a random patient ID
 
-    // Handle input changes in the form
-    const handleInputChange = (e) => {
+
+    useEffect(() => {
+        const fetchDoctors = async () => {
+            try {
+                const response = await fetch("http://localhost:3000/doctor/view");
+                const data = await response.json();
+
+                if (Array.isArray(data)) {
+                    setDoctors(data);
+                    setAppointmentDetails((prev) => ({
+                        ...prev,
+                        doctorName: data.length > 0 ? data[0] : "", // Set first doctor
+                    }));
+                } else {
+                    console.error("Invalid response format:", data);
+                    setDoctors([]); // Fallback to empty array
+                }
+            } catch (error) {
+                console.error("Error fetching doctors:", error);
+                setDoctors([]); // Handle errors by ensuring doctors remains an array
+            }
+        };
+
+
+        const fetchPatients = async () => {
+            try {
+                const response = await fetch("http://localhost:3000/patient/view");
+                const data = await response.json();
+
+                if (Array.isArray(data)) {
+                    setPatients(data);
+                } else {
+                    console.error("Invalid patient response format:", data);
+                    setPatients([]);
+                }
+            } catch (error) {
+                console.error("Error fetching patients:", error);
+                setPatients([]);
+            }
+        };
+
+        fetchDoctors();
+        fetchPatients();
+    }, []);
+
+    // Handle input changes
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setAppointmentDetails({
             ...appointmentDetails,
-            [name]: value,
+            [name]: value,  // Dynamically updates state based on the input field's name
         });
     };
 
-    // Handle the appointment form submission
+
+    // Handle form submission
     const handleSubmit = () => {
-        if (
-            appointmentDetails.name &&
-            appointmentDetails.email &&
-            appointmentDetails.phone &&
-            appointmentDetails.appointmentDate &&
-            appointmentDetails.appointmentTime
-        ) {
-            // Add new appointment to the list
-            setAppointments([...appointments, appointmentDetails]);
+        // if (
+        const new_appointment = new  Appointments(appointmentDetails.name, appointmentDetails.appointmentDate, appointmentDetails.appointmentTime, appointmentDetails.doctorName, appointmentDetails.email);
 
-            // Reset the form and generate a new Patient ID
-            setAppointmentDetails({
-                name: "",
-                email: "",
-                phone: "",
-                appointmentDate: "",
-                appointmentTime: "",
-                doctorName: doctors[0],
-                patientId: generatePatientId(),
-            });
+        dispatch(saveAppointment(new_appointment));
 
-            alert("Appointment Scheduled Successfully!");
-        } else {
-            alert("Please fill all fields!");
-        }
     };
 
     return (
@@ -64,103 +92,51 @@ function Appointment() {
             <div className="bg-white p-8 rounded-lg shadow-xl">
                 <h2 className="text-2xl font-semibold mb-4 text-gray-700">Patient Information</h2>
 
-                {/* Appointment Form */}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                     <input
                         type="text"
-                        name="name"
+                        name="name" // Changed from 'fullName' to 'name'
                         value={appointmentDetails.name}
                         onChange={handleInputChange}
-                        placeholder="Full Name"
+                        placeholder="Full name"
                         className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
                     />
-                    <input
-                        type="email"
-                        name="email"
-                        value={appointmentDetails.email}
-                        onChange={handleInputChange}
-                        placeholder="Email Address"
-                        className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
-                    />
+
+                    <input type="date" name="appointmentDate" value={appointmentDetails.appointmentDate} onChange={handleInputChange} className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"/>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                    <input
-                        type="text"
-                        name="phone"
-                        value={appointmentDetails.phone}
-                        onChange={handleInputChange}
-                        placeholder="Phone Number"
-                        className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
-                    />
-                    <input
-                        type="date"
-                        name="appointmentDate"
-                        value={appointmentDetails.appointmentDate}
-                        onChange={handleInputChange}
-                        className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
-                    />
-                </div>
+                    <input type="time" name="appointmentTime" value={appointmentDetails.appointmentTime} onChange={handleInputChange} className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"/>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                    <input
-                        type="time"
-                        name="appointmentTime"
-                        value={appointmentDetails.appointmentTime}
-                        onChange={handleInputChange}
-                        className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
-                    />
-                    <select
-                        name="doctorName"
-                        value={appointmentDetails.doctorName}
-                        onChange={handleInputChange}
-                        className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
-                    >
-                        {doctors.map((doctor, index) => (
-                            <option key={index} value={doctor}>
-                                {doctor}
+                    {/* Dropdown for doctor selection */}
+                    <select name="doctorName" value={appointmentDetails.doctorName} onChange={handleInputChange} className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full">
+                        {doctors.map((doctor) => (
+                            <option key={doctor.name} value={doctor.name}>
+                                {doctor.name}
                             </option>
                         ))}
                     </select>
+
                 </div>
 
-                {/* Hidden field for Patient ID */}
-                <div className="mb-6">
-                    <label className="block text-gray-700">Patient ID</label>
-                    <input
-                        type="text"
-                        name="patientId"
-                        value={appointmentDetails.patientId}
-                        readOnly
-                        className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full bg-gray-100 cursor-not-allowed"
-                    />
-                </div>
+                <select
+                    name="email"
+                    value={appointmentDetails.email}
+                    onChange={handleInputChange}
+                    className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
+                >
+                    <option value="">Select Patient Email</option>
+                    {patients.map((patient) => (
+                        <option key={patient._id} value={patient.email}>
+                            {patient.email}
+                        </option>
+                    ))}
+                </select>
 
                 {/* Submit Button */}
                 <div className="text-center">
-                    <button
-                        onClick={handleSubmit}
-                        className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition duration-300"
-                    >
-                        Book Appointment
-                    </button>
-                </div>
-            </div>
-
-            {/* Appointments Cards Section */}
-            <div className="mt-8">
-                <h2 className="text-2xl font-semibold mb-4 text-gray-700">Scheduled Appointments</h2>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {appointments.map((appointment, index) => (
-                        <div key={index} className="bg-white p-6 shadow rounded-lg">
-                            <h3 className="text-xl font-semibold text-gray-800">{appointment.name}</h3>
-                            <p className="text-gray-600">Patient ID: {appointment.patientId}</p>
-                            <p className="text-gray-600">Doctor: {appointment.doctorName}</p>
-                            <p className="text-gray-600">Date: {appointment.appointmentDate}</p>
-                            <p className="text-gray-600">Time: {appointment.appointmentTime}</p>
-                        </div>
-                    ))}
+                    <button onClick={handleSubmit} className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition duration-300">Book Appointment</button>
                 </div>
             </div>
         </div>

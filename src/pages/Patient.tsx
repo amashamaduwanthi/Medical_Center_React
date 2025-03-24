@@ -31,6 +31,8 @@ function Patient() {
 
     const deletePatients = (email: string) => {
         dispatch(deletePatient(email));
+        alert("Patient deleted successfully!");
+        dispatch(getAllPatients())
     };
 
     const editPatient = (patient: any) => {
