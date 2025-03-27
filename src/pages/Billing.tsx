@@ -1,5 +1,9 @@
 import { useState } from "react";
-import backgroundImage from "../assets/medical-equipment-with-copy-space.jpg"; // Adjust path as needed
+import backgroundImage from "../assets/medical-equipment-with-copy-space.jpg";
+import {useDispatch} from "react-redux";
+import {AppDispatch} from "../redux/store.ts";
+import {savePayment} from "../slice/PaymentSlice.ts";
+import Payment from "../model/Payment.ts"; // Adjust path as needed
 
 // Sample Payment Data for initial load
 const initialPayments = [
@@ -10,15 +14,18 @@ const initialPayments = [
 
 function Billing() {
     const [payments, setPayments] = useState(initialPayments);
-    const [newPayment, setNewPayment] = useState({ patient: "", amount: "", method: "" });
+    const [newPayment, setNewPayment] = useState({ AppointmentNo:"",patient: "", amount: "", method: "" });
     const [editingPayment, setEditingPayment] = useState(null);
+    const dispatch = useDispatch<AppDispatch>();
 
     // Function to add a new payment
     const addPayment = () => {
-        if (newPayment.patient && newPayment.amount && newPayment.method) {
+        if (newPayment.AppointmentNo && newPayment.patient && newPayment.amount && newPayment.method) {
             const payment = { ...newPayment, id: payments.length + 1 };
             setPayments([...payments, payment]);
-            setNewPayment({ patient: "", amount: "", method: "" });
+            setNewPayment({AppointmentNo:"", patient: "", amount: "", method: "" });
+            const new_pay = new Payment(newPayment.AppointmentNo,newPayment.patient,newPayment.amount,newPayment.method);
+            dispatch(savePayment(new_pay));
         } else {
             alert("Please fill all fields.");
         }
@@ -61,13 +68,20 @@ function Billing() {
             className="min-h-screen flex items-center justify-center bg-cover bg-center p-6"
             style={{ backgroundImage: `url(${backgroundImage})` }}
         >
-            <div className="w-full max-w-5xl rounded-xl shadow-2xl overflow-hidden transform hover:scale-105 transition duration-300 p-8 bg-white bg-opacity-90">
+            <div className="w-full max-w-5xl rounded-xl shadow-2xl overflow-hidden transform hover:scale-105 transition duration-300 p-8  bg-opacity-10">
                 <h1 className="text-4xl font-extrabold mb-8 text-center text-gray-800">Payment Management</h1>
 
                 {/* Form to add or update a payment */}
                 <div className="max-w-xl mx-auto bg-white p-8 shadow-lg rounded-lg mb-8">
                     <h2 className="text-2xl font-semibold mb-4">{editingPayment ? "Edit Payment" : "Add New Payment"}</h2>
-
+                    <input
+                        type="text"
+                        name="AppointmentNo"
+                        placeholder="AppointmentNo"
+                        value={editingPayment ? editingPayment.AppointmentNo : newPayment.AppointmentNo}
+                        onChange={handleInputChange}
+                        className="w-full p-4 mb-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
+                    />
                     <input
                         type="text"
                         name="patient"

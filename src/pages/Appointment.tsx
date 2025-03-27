@@ -13,6 +13,7 @@ function Appointment() {
 
     const [appointmentDetails, setAppointmentDetails] = useState({
         name: "",
+        AppointmentNo:"",
         appointmentDate: "",
         appointmentTime: "",
         doctorName: "",
@@ -63,6 +64,7 @@ function Appointment() {
     const handleSubmit = async () => {
         const newAppointment = new Appointments(
             appointmentDetails.name,
+            Number(appointmentDetails.AppointmentNo),
             appointmentDetails.appointmentDate,
             appointmentDetails.appointmentTime,
             appointmentDetails.doctorName,
@@ -83,7 +85,7 @@ function Appointment() {
             className="min-h-screen flex items-center justify-center bg-cover bg-center p-6"
             style={{ backgroundImage: `url(${backgroundImage})` }}
         >
-            <div className="w-full max-w-4xl mx-auto p-6 bg-white bg-opacity-80 rounded-lg shadow-xl">
+            <div className="w-full max-w-4xl mx-auto p-6  bg-opacity-10 rounded-lg shadow-xl">
                 <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">Schedule an Appointment</h1>
 
                 <div className="bg-white p-8 rounded-lg shadow-xl">
@@ -98,6 +100,16 @@ function Appointment() {
                             placeholder="Full name"
                             className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
                         />
+
+                        <input
+                            type="number"
+                            name="AppointmentNo"
+                            value={appointmentDetails.AppointmentNo}
+                            onChange={handleInputChange}
+                            placeholder="Appointment No"
+                            className="p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
+                        />
+
                         <input
                             type="date"
                             name="appointmentDate"
@@ -163,6 +175,7 @@ function Appointment() {
                             {appointments.map((appointment) => (
                                 <div key={appointment._id} className="p-4 border border-gray-300 rounded-lg shadow-md bg-white">
                                     <p><strong>Patient:</strong> {appointment.FullName}</p>
+                                    <p><strong>AppointmentNo:</strong>{appointment.AppointmentNo}</p>
                                     <p><strong>Date:</strong> {appointment.Date}</p>
                                     <p><strong>Time:</strong> {appointment.Time}</p>
                                     <p><strong>Doctor:</strong> {appointment.DoctorName}</p>

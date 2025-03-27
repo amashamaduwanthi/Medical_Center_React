@@ -42,9 +42,11 @@ function Patient() {
                 title: "Patient Deleted",
                 text: "The patient has been successfully deleted!",
                 confirmButtonColor: "#d33",
+
             });
+            dispatch(getAllPatients());
         });
-        dispatch(getAllPatients());
+
     };
 
     const editPatient = (patient: any) => {
